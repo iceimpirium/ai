@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אסטרטגיה וריגול תחרותי באמצעות NotebookLM</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #014040;
+    --bg-card: #065050;
+    --bg-card-hover: #0a5e5e;
+    --accent: #44F076;
+    --accent-dim: rgba(68, 240, 118, 0.12);
+    --accent-glow: rgba(68, 240, 118, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #b8d8d8;
+    --text-muted: #7aabab;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(68, 240, 118, 0.4);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .ambient {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-1 { background: var(--accent); top: -200px; left: -100px; }
+  .ambient-2 { background: #0a8080; bottom: -200px; right: -100px; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  .header .badge {
+    display: inline-block;
+    font-family: 'Rubik', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(68, 240, 118, 0.2);
+    padding: 6px 20px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: 'Rubik', sans-serif;
+    font-size: clamp(28px, 5.5vw, 46px);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent), #a0ffc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin: 0 auto;
+    line-height: 1.75;
+  }
+
+  /* Accordion */
+  .accordion-item {
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+    animation: fadeUp 0.6s ease-out both;
+  }
+
+  .accordion-item:nth-child(1) { animation-delay: 0.1s; }
+  .accordion-item:nth-child(2) { animation-delay: 0.16s; }
+  .accordion-item:nth-child(3) { animation-delay: 0.22s; }
+  .accordion-item:nth-child(4) { animation-delay: 0.28s; }
+
+  .accordion-item:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--bg-card-hover);
+  }
+
+  .accordion-item.active {
+    border-color: var(--border-active);
+    box-shadow: 0 0 40px rgba(68, 240, 118, 0.05), inset 0 1px 0 rgba(68, 240, 118, 0.1);
+  }
+
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 28px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .step-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: var(--accent-dim);
+    border-radius: 14px;
+    transition: all 0.3s;
+  }
+
+  .active .step-icon {
+    background: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .header-text h3 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    transition: color 0.3s;
+  }
+
+  .active .header-text h3 {
+    color: var(--accent);
+  }
+
+  .header-text .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .chevron {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-muted);
+  }
+
+  .active .chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .accordion-content {
+    padding: 0 28px 28px;
+    padding-right: 92px;
+  }
+
+  .goal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .prompt-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    position: relative;
+  }
+
+  .prompt-box::before {
+    content: '״';
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 48px;
+    font-family: 'Rubik', sans-serif;
+    color: var(--accent);
+    opacity: 0.15;
+    line-height: 1;
+  }
+
+  .prompt-box p {
+    margin-bottom: 12px;
+  }
+
+  .prompt-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .prompt-box strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .prompt-box .field {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .prompt-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+  }
+
+  .prompt-box ul li {
+    position: relative;
+    padding-right: 20px;
+    margin-bottom: 8px;
+  }
+
+  .prompt-box ul li::before {
+    content: '◆';
+    position: absolute;
+    right: 0;
+    top: 2px;
+    font-size: 8px;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-active);
+    background: var(--accent-dim);
+  }
+
+  .copy-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .container { padding: 48px 20px 80px; }
+    .header { margin-bottom: 48px; }
+    .header h1 { font-size: 32px; }
+    .header p { font-size: 15px; }
+    .accordion-header { padding: 20px 22px; gap: 14px; }
+    .accordion-content { padding: 0 22px 24px; padding-right: 22px; }
+    .step-icon { width: 42px; height: 42px; font-size: 20px; border-radius: 12px; }
+    .header-text h3 { font-size: 17px; }
+    .prompt-box { padding: 20px; font-size: 14px; line-height: 1.8; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 32px 14px 60px; }
+    .header { margin-bottom: 36px; }
+    .header .badge { font-size: 11px; padding: 5px 16px; letter-spacing: 1.5px; }
+    .header h1 { font-size: 25px; }
+    .header p { font-size: 14px; }
+    .accordion-item { margin-bottom: 10px; border-radius: 12px; }
+    .accordion-header { padding: 16px 16px; gap: 12px; }
+    .accordion-content { padding: 0 16px 20px; padding-right: 16px; }
+    .step-icon { width: 38px; height: 38px; font-size: 18px; border-radius: 10px; }
+    .header-text h3 { font-size: 15px; }
+    .header-text .subtitle { font-size: 12px; }
+    .chevron { width: 20px; height: 20px; }
+    .goal { font-size: 12px; padding: 4px 12px; }
+    .prompt-box { padding: 16px; font-size: 13px; line-height: 1.75; border-radius: 10px; }
+    .prompt-box::before { font-size: 36px; right: 10px; }
+    .prompt-box ul li { padding-right: 16px; }
+    .copy-btn { font-size: 12px; padding: 7px 14px; }
+    .footer { font-size: 12px; }
+  }
+
+  @media (max-width: 360px) {
+    .container { padding: 24px 10px 48px; }
+    .header h1 { font-size: 22px; }
+    .header p { font-size: 13px; }
+    .accordion-header { padding: 14px 12px; gap: 10px; }
+    .accordion-content { padding: 0 12px 16px; padding-right: 12px; }
+    .step-icon { width: 34px; height: 34px; font-size: 16px; }
+    .header-text h3 { font-size: 14px; }
+    .prompt-box { padding: 12px; font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">NotebookLM · ריגול תחרותי</div>
+    <h1><span>אסטרטגיה וריגול תחרותי</span><br>באמצעות NotebookLM</h1>
+    <p>שיטה להזין את דף המכירה של המתחרה הגדול ביותר שלכם לבינה מלאכותית, ולגלות תוך 30 שניות איפה הוא נכשל — ואיך אתם יכולים לקחת לו את הלקוחות.</p>
+  </div>
+
+  <!-- Prompt 1: Comparison Table -->
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggle(this)">
+      <div class="step-icon">📊</div>
+      <div class="header-text">
+        <h3>טבלת השוואה תחרותית</h3>
+        <div class="subtitle">מסרים · מוצרים · שירותים · הנעות לפעולה</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="goal">🎯 המטרה: מיפוי מאפייני המסרים של כל עסק בטבלה משווה</div>
+        <div class="prompt-box">
+          <p>"מהם המאפיינים של המסרים של כל אחד מהעסקים ? בנה טבלה משווה של מסרים , מוצרים , שירותים , הנעות לפעולה וכל מה שרלוונטי"</p>
+          <button class="copy-btn" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            העתק פרומפט
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt 2: The Miss -->
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggle(this)">
+      <div class="step-icon">🔍</div>
+      <div class="header-text">
+        <h3>מציאת התנגדות — The Miss</h3>
+        <div class="subtitle">ספקות · חששות · שאלות שלא נענו</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="goal">🎯 המטרה: לזהות ספקות, חששות ושאלות קריטיות שהטקסט לא ענה עליהן</div>
+        <div class="prompt-box">
+          <p>"קרא את הטקסטים באתרים בעיניים של לקוח סקפטי ששוקל לקנות. רשום לי לפחות 5 שאלות או חששות קריטיים שהלקוח עדיין יחזיק בהן גם לאחר שקרא את דף המכירה כולו. השאלות הללו צריכות להיות כאלה שהטקסט הנוכחי מתעלם מהן, או עונה עליהן בצורה מעורפלת מדי. התמקד בחששות לגבי מחיר, זמן יישום, ותוצאות מובטחות."</p>
+          <button class="copy-btn" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            העתק פרומפט
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt 3: The Confusion Test -->
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggle(this)">
+      <div class="step-icon">🌫️</div>
+      <div class="header-text">
+        <h3>מציאת בלבול — The Confusion Test</h3>
+        <div class="subtitle">ז׳רגון · Buzzwords · משפטים מסורבלים</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="goal">🎯 המטרה: לזהות קטעים בהם המסר מסובך, משתמש בז׳רגון מקצועי מדי, או לא ממוקד</div>
+        <div class="prompt-box">
+          <p>"מצא 3-4 משפטים או פסקאות בטקסט שמשתמשים בז'רגון מקצועי (Buzzwords), או שהם ארוכים ומסורבלים מדי. עבור כל משפט כזה, הסבר לי במילה אחת מה הלקוח עלול לחשוב שזה אומר, ואז הצע משפט חלופי אחד שהוא ברור, פשוט, ומשתמש בשפה יומיומית לחלוטין. מטרת המשפט החלופי היא להסיר כל בלבול."</p>
+          <button class="copy-btn" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            העתק פרומפט
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt 4: The Baseline Check -->
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggle(this)">
+      <div class="step-icon">⚔️</div>
+      <div class="header-text">
+        <h3>מציאת בסיס — The Baseline Check</h3>
+        <div class="subtitle">ליבת ההצעה · סטנדרט השוק · יתרון תחרותי</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="goal">🎯 המטרה: לפרק את ההצעה של המתחרה למרכיביה הבסיסיים ביותר, כדי לראות מה ה"סטנדרט" בשוק</div>
+        <div class="prompt-box">
+          <p>"בהתבסס על כל המידע עד כה - אם נתעלם מכל הבטחות ה'שיווק' וההייפ של הטקסט, מהו המוצר הבסיסי ביותר שהמתחרה הזה מוכר? רשום 3 נקודות בלבד שמתארות את ה'ליבה' של ההצעה (לדוגמה: גישה לכלי X, שיחת ייעוץ אחת, מדריך PDF). בנוסף, הצע לי 3 דרכים ספציפיות שבהן אוכל להציע את הליבה הזו טוב יותר, מהר יותר או פשוט יותר מהמתחרה, כדי ליצור יתרון תחרותי מיידי."</p>
+          <button class="copy-btn" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            העתק פרומפט
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Goodpoint OS · אסטרטגיה וריגול תחרותי באמצעות NotebookLM
+    <br><br>
+    <a href="https://goodpoint.co.il" target="_blank" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">goodpoint.co.il</a>
+    <br>
+    <span style="display: inline-block; margin-top: 8px;">© כל הזכויות שמורות לאדי לבנטמן</span>
+  </div>
+
+</div>
+
+<script>
+function toggle(header) {
+  const item = header.parentElement;
+  const body = item.querySelector('.accordion-body');
+  const isActive = item.classList.contains('active');
+
+  document.querySelectorAll('.accordion-item').forEach(el => {
+    el.classList.remove('active');
+    el.querySelector('.accordion-body').style.maxHeight = null;
+  });
+
+  if (!isActive) {
+    item.classList.add('active');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+
+function copyPrompt(btn) {
+  const box = btn.closest('.prompt-box');
+  const clone = box.cloneNode(true);
+  clone.querySelector('.copy-btn')?.remove();
+  const text = clone.innerText.trim();
+
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> הועתק!';
+    btn.style.color = 'var(--accent)';
+    btn.style.borderColor = 'var(--accent)';
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
