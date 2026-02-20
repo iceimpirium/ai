@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ארגז כלים: יצירת תוכן, מצגות וויזואליזציה (AI)</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #014040;
+    --bg-card: #065050;
+    --bg-card-hover: #0a5e5e;
+    --accent: #44F076;
+    --accent-dim: rgba(68, 240, 118, 0.12);
+    --accent-glow: rgba(68, 240, 118, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #b8d8d8;
+    --text-muted: #7aabab;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(68, 240, 118, 0.4);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .ambient {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-1 { background: var(--accent); top: -200px; left: -100px; }
+  .ambient-2 { background: #0a8080; bottom: -200px; right: -100px; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  .header .badge {
+    display: inline-block;
+    font-family: 'Rubik', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(68, 240, 118, 0.2);
+    padding: 6px 20px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: 'Rubik', sans-serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent), #a0ffc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease-out both;
+  }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  .section:nth-child(6) { animation-delay: 0.3s; }
+  .section:nth-child(7) { animation-delay: 0.35s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .section-num {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--bg-deep);
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .section-header h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: var(--bg-card-hover);
+  }
+
+  .card p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .card p:last-child { margin-bottom: 0; }
+
+  .card strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .tool-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+
+  .tool-name .icon {
+    font-size: 18px;
+  }
+
+  .tool-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-right: 4px;
+  }
+
+  .note-box {
+    background: rgba(68, 240, 118, 0.06);
+    border-right: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .note-box strong {
+    color: var(--accent);
+  }
+
+  /* Comparison Table */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-top: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    min-width: 620px;
+  }
+
+  .comp-table thead th {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(68, 240, 118, 0.08);
+    padding: 14px 16px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-active);
+  }
+
+  .comp-table thead th:first-child { border-radius: 0 12px 0 0; }
+  .comp-table thead th:last-child { border-radius: 12px 0 0 0; }
+
+  .comp-table tbody td {
+    padding: 16px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .comp-table tbody tr:last-child td { border-bottom: none; }
+
+  .comp-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .comp-table .tool-cell {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .comp-table .bottomline {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  /* Workflow */
+  .workflow-card {
+    background: linear-gradient(135deg, rgba(68, 240, 118, 0.08), rgba(68, 240, 118, 0.02));
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+
+  .workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .wf-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 24px;
+  }
+
+  .wf-step:last-child { padding-bottom: 0; }
+
+  .wf-step::before {
+    content: '';
+    position: absolute;
+    right: 17px;
+    top: 38px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-active);
+  }
+
+  .wf-step:last-child::before { display: none; }
+
+  .wf-num {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--bg-deep);
+    background: var(--accent);
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .wf-content {
+    flex: 1;
+    padding-top: 6px;
+  }
+
+  .wf-content .wf-title {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .wf-content .wf-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .container { padding: 44px 20px 70px; }
+    .header { margin-bottom: 44px; }
+    .header h1 { font-size: 32px; }
+    .section-header h2 { font-size: 18px; }
+    .card { padding: 22px; }
+    .workflow-card { padding: 24px; }
+    .section { margin-bottom: 28px; }
+    .table-wrapper { margin-left: -22px; margin-right: -22px; padding: 0 22px; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 32px 14px 56px; }
+    .header { margin-bottom: 32px; }
+    .header .badge { font-size: 11px; padding: 5px 16px; }
+    .header h1 { font-size: 26px; }
+    .header p { font-size: 14px; }
+    .section { margin-bottom: 24px; }
+    .section-header { gap: 10px; margin-bottom: 14px; }
+    .section-num { width: 36px; height: 36px; font-size: 13px; border-radius: 8px; }
+    .section-header h2 { font-size: 15px; }
+    .card { padding: 18px; border-radius: 12px; }
+    .card p { font-size: 14px; }
+    .tool-name { font-size: 15px; margin-bottom: 10px; }
+    .tool-tag { font-size: 11px; padding: 2px 10px; margin-bottom: 4px; }
+    .note-box { font-size: 13px; padding: 12px 14px; }
+
+    /* Table → mobile card layout */
+    .table-wrapper { margin-left: 0; margin-right: 0; padding: 0; }
+    .comp-table { min-width: unset; }
+    .comp-table thead { display: none; }
+    .comp-table tbody tr {
+      display: block;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .comp-table tbody tr:last-child { margin-bottom: 0; }
+    .comp-table tbody tr:hover td { background: transparent; }
+    .comp-table tbody td {
+      display: block;
+      padding: 4px 0;
+      border-bottom: none;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .comp-table .tool-cell {
+      font-size: 16px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-table tbody td:nth-child(2)::before { content: '👍 '; }
+    .comp-table tbody td:nth-child(3)::before { content: '⚠️ '; }
+    .comp-table .bottomline {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    /* Workflow */
+    .workflow-card { padding: 20px; border-radius: 12px; }
+    .wf-step { gap: 12px; padding-bottom: 20px; }
+    .wf-step::before { right: 14px; }
+    .wf-num { width: 30px; height: 30px; font-size: 12px; }
+    .wf-content { padding-top: 4px; }
+    .wf-content .wf-title { font-size: 14px; }
+    .wf-content .wf-desc { font-size: 13px; }
+    .footer { font-size: 12px; }
+  }
+
+  @media (max-width: 360px) {
+    .container { padding: 24px 10px 48px; }
+    .header h1 { font-size: 22px; }
+    .header p { font-size: 13px; }
+    .section-header h2 { font-size: 14px; }
+    .card { padding: 14px; }
+    .card p { font-size: 13px; }
+    .comp-table tbody tr { padding: 12px; }
+    .comp-table .tool-cell { font-size: 15px; }
+    .comp-table tbody td { font-size: 12.5px; }
+    .workflow-card { padding: 16px; }
+    .wf-num { width: 28px; height: 28px; font-size: 11px; }
+    .wf-content .wf-title { font-size: 13px; }
+    .wf-content .wf-desc { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">ארגז כלים · AI</div>
+    <h1><span>יצירת תוכן, מצגות</span><br>וויזואליזציה עם AI</h1>
+    <p>כל הכלים שצריך כדי לעבור מרעיון גולמי למצגת מוכנה — מסודר לפי שלבי העבודה.</p>
+  </div>
+
+  <!-- 1. Core Engines -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <h2>מנועי הליבה — יצירת תוכן טקסטואלי</h2>
+    </div>
+    <div class="card">
+      <div class="tool-name"><span class="icon">🧠</span> כל מודל שפה גדול (LLM)</div>
+      <p><span class="tool-tag">ChatGPT</span> <span class="tool-tag">Claude</span> <span class="tool-tag">Gemini</span></p>
+      <p><strong>שימוש מומלץ:</strong> יצירת השלד הרעיוני, כתיבת תסריטים, וזיקוק המסרים — לפני המעבר לעיצוב.</p>
+    </div>
+  </div>
+
+  <!-- 2. Presentations -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <h2>יצירת מצגות (Presentations)</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom: 18px; color: var(--text-muted); font-size: 14px;">הבחירה תלויה בצורך הספציפי — מהירות מול עיצוב מול עלות.</p>
+      <div class="table-wrapper">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>הכלי</th>
+              <th>למה כן? 👍</th>
+              <th>למה לשים לב? ⚠️</th>
+              <th>השורה התחתונה</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tool-cell">Gamma</td>
+              <td>תמיכה מצוינת בעברית, ממשק אינטואיטיבי, מגוון תבניות עשיר, יוצר גם תמונות.</td>
+              <td>הגבלה בחינם: עד 10 שקפים למצגת (מקשה על עקביות במצגות ארוכות).</td>
+              <td class="bottomline">מעולה למצגות קצרות ומהירות בעברית.</td>
+            </tr>
+            <tr>
+              <td class="tool-cell">Genspark</td>
+              <td>עיצוב ברמה גבוהה מאוד (High-End), מבוסס על תבניות שהמשתמש בוחר.</td>
+              <td>ייצוא המצגת לקובץ עריכה דורש לרוב מנוי בתשלום.</td>
+              <td class="bottomline">מתאים כשצריך "וואו" עיצובי ומוכנים לשלם עליו.</td>
+            </tr>
+            <tr>
+              <td class="tool-cell">Gemini</td>
+              <td>אינטגרציה מלאה ל-Workspace. שימוש ב-Canvas לעיצוב ואז המרה ל-Slides ול-PPT.</td>
+              <td>שיפור שקפים אוטומטי בתוך Slides קיים רק למנויים משלמים.</td>
+              <td class="bottomline">הכי ורסטילי למי שחי בתוך Google Ecosystem.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Visualization -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <h2>ויזואליזציה וגרפים (Data & Charts)</h2>
+    </div>
+    <div class="card">
+      <div class="tool-name"><span class="icon">📊</span> Napkin AI</div>
+      <p><strong>הפונקציה:</strong> הופך טקסט לתרשימים (Charts) ואינפוגרפיקות מסוגים שונים.</p>
+      <p><strong>היתרון הגדול:</strong> מאפשר הורדה ל-PPT להמשך עריכה מלאה והתאמה לשפה העיצובית של המצגת שלך.</p>
+      <div class="note-box">
+        <strong>מתי להשתמש:</strong> כשיש לכם פסקה מורכבת שצריך לפשט ויזואלית.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Knowledge Management -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <h2>מחקר וארגון ידע (Knowledge Management)</h2>
+    </div>
+    <div class="card">
+      <div class="tool-name"><span class="icon">📓</span> NotebookLM</div>
+      <p><strong>הפונקציה:</strong> "לדבר" עם המידע שלכם. מעלים קבצים/מקורות ומנהלים צ'אט מולם.</p>
+      <p><strong>פיצ'ר המצגות:</strong> מאפשר לבנות רצף לוגי למצגת, ואף לייצר מצגת ואינפוגרפיקה בפועל.</p>
+      <div class="note-box">
+        <strong>הערה חשובה:</strong> המצגות שנוצרות הן סטטיות ולא ניתנות לשינוי עיצובי משמעותי לאחר היצירה.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Image Generation -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <h2>יצירת תמונות למתקדמים (Image Generation)</h2>
+    </div>
+    <div class="card">
+      <div class="tool-name"><span class="icon">🎨</span> Google AI Studio</div>
+      <p><strong>הסוד:</strong> גישה ישירה למודל Nano Banana.</p>
+      <p><strong>היתרון:</strong> עבודה בחינם (במסגרת המגבלות) ליצירת מספר רב של תמונות באיכות גבוהה, ללא הממשק הכבד של כלים אחרים.</p>
+    </div>
+  </div>
+
+  <!-- Workflow -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">⚡</div>
+      <h2>זרימת עבודה (Workflow) מנצחת</h2>
+    </div>
+    <div class="workflow-card">
+      <div class="workflow-steps">
+        <div class="wf-step">
+          <div class="wf-num">1</div>
+          <div class="wf-content">
+            <div class="wf-title">NotebookLM / LLM</div>
+            <div class="wf-desc">גיבוש הרעיון ורצף השקפים.</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">2</div>
+          <div class="wf-content">
+            <div class="wf-title">Gamma / Gemini</div>
+            <div class="wf-desc">יצירת הטיוטה הראשונה של המצגת (השלד העיצובי).</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">3</div>
+          <div class="wf-content">
+            <div class="wf-title">Napkin AI</div>
+            <div class="wf-desc">יצירת תרשימים ספציפיים לנקודות מורכבות ושתילתם במצגת.</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-num">4</div>
+          <div class="wf-content">
+            <div class="wf-title">AI Studio</div>
+            <div class="wf-desc">השלמת תמונות אווירה מדויקות במידת הצורך.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Goodpoint OS · ארגז כלים ליצירת תוכן עם AI
+    <br><br>
+    <a href="https://goodpoint.co.il" target="_blank" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">goodpoint.co.il</a>
+    <br>
+    <span style="display: inline-block; margin-top: 8px;">© כל הזכויות שמורות לאדי לבנטמן</span>
+  </div>
+
+</div>
+
+</body>
+</html>
