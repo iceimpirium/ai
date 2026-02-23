@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Gems - המדריך המלא</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #014040;
+    --bg-card: #065050;
+    --bg-card-hover: #0a5e5e;
+    --accent: #44F076;
+    --accent-dim: rgba(68, 240, 118, 0.12);
+    --accent-glow: rgba(68, 240, 118, 0.25);
+    --accent-bright: #6fff96;
+    --text-primary: #ffffff;
+    --text-secondary: #c5e0e0;
+    --text-muted: #7aabab;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(68, 240, 118, 0.4);
+    --radius: 20px;
+    --gem-blue: #4285f4;
+    --gem-red: #ea4335;
+    --gem-yellow: #fbbc05;
+    --gem-green: #34a853;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .ambient {
+    position: fixed;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-1 { background: var(--accent); top: -250px; left: -150px; opacity: 0.06; }
+  .ambient-2 { background: var(--gem-blue); bottom: -250px; right: -150px; opacity: 0.05; }
+
+  /* ── HERO SECTION ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(68, 240, 118, 0.2);
+    padding: 8px 24px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+    animation: fadeUp 0.6s ease-out;
+  }
+
+  .hero .badge svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hero h1 {
+    font-family: 'Rubik', sans-serif;
+    font-size: clamp(40px, 8vw, 72px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    animation: fadeUp 0.7s ease-out 0.1s both;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--gem-blue), var(--gem-green), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: clamp(18px, 2.5vw, 22px);
+    color: var(--text-secondary);
+    max-width: 650px;
+    line-height: 1.75;
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s ease-out 0.2s both;
+  }
+
+  .gem-icon-row {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.7s ease-out 0.3s both;
+  }
+
+  .gem-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    transform: rotate(45deg);
+    animation: gemPulse 3s ease-in-out infinite;
+  }
+  .gem-dot:nth-child(1) { background: var(--gem-blue); animation-delay: 0s; }
+  .gem-dot:nth-child(2) { background: var(--gem-red); animation-delay: 0.3s; }
+  .gem-dot:nth-child(3) { background: var(--gem-yellow); animation-delay: 0.6s; }
+  .gem-dot:nth-child(4) { background: var(--gem-green); animation-delay: 0.9s; }
+
+  @keyframes gemPulse {
+    0%, 100% { opacity: 0.5; transform: rotate(45deg) scale(1); }
+    50% { opacity: 1; transform: rotate(45deg) scale(1.4); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    animation: bounce 2s ease-in-out infinite;
+    color: var(--text-muted);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .scroll-hint svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--accent);
+    opacity: 0.6;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* ── HORIZONTAL SCROLL SECTION ── */
+  .h-scroll-wrapper {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .h-scroll-track {
+    display: flex;
+    gap: 32px;
+    padding: 80px 48px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .h-scroll-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .h-card {
+    flex: 0 0 min(85vw, 560px);
+    scroll-snap-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+  }
+
+  .h-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(68, 240, 118, 0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+
+  .h-card:hover::before { opacity: 1; }
+
+  .h-card::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+
+  .h-card:nth-child(1)::after { background: var(--gem-blue); }
+  .h-card:nth-child(2)::after { background: var(--gem-yellow); }
+  .h-card:nth-child(3)::after { background: var(--gem-green); }
+
+  .h-card:hover::after { opacity: 0.1; }
+
+  .h-card:hover {
+    border-color: var(--border-active);
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 50px rgba(68, 240, 118, 0.06);
+  }
+
+  .h-card .card-num {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+    transition: color 0.4s;
+  }
+
+  .h-card:hover .card-num {
+    color: rgba(68, 240, 118, 0.06);
+  }
+
+  .h-card .card-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+    transition: all 0.4s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .h-card:nth-child(1) .card-icon { background: rgba(66, 133, 244, 0.15); }
+  .h-card:nth-child(2) .card-icon { background: rgba(251, 188, 5, 0.15); }
+  .h-card:nth-child(3) .card-icon { background: rgba(52, 168, 83, 0.15); }
+
+  .h-card:hover .card-icon {
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  .h-card h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    transition: color 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .h-card:hover h2 { color: var(--accent); }
+
+  .h-card .eng {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+    display: block;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .h-card p {
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .h-card p:last-child { margin-bottom: 0; }
+  .h-card strong { color: var(--text-primary); font-weight: 600; }
+  .h-card .highlight { color: var(--accent); font-weight: 600; }
+
+  .not-agent {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gem-yellow);
+    background: rgba(251, 188, 5, 0.1);
+    border: 1px solid rgba(251, 188, 5, 0.2);
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Knowledge sub-cards ── */
+  .sub-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 22px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sub-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: all 0.3s;
+  }
+
+  .sub-card:hover {
+    border-color: var(--border-active);
+    background: rgba(68, 240, 118, 0.04);
+    transform: translateY(-2px);
+  }
+
+  .sub-card .sub-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .sub-card h4 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .sub-card p {
+    font-size: 15px !important;
+    line-height: 1.75 !important;
+    color: var(--text-muted) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .sub-card .stat {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 17px;
+  }
+
+  /* ── Scroll indicators ── */
+  .scroll-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding-bottom: 48px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .dot.active {
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    width: 32px;
+    border-radius: 5px;
+  }
+
+  /* ── CTA Section ── */
+  .cta-section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 32px 100px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .cta-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(68, 240, 118, 0.1), rgba(66, 133, 244, 0.06));
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius);
+    padding: 56px 48px;
+    text-align: center;
+    max-width: 700px;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.4s;
+    cursor: default;
+  }
+
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--gem-blue), var(--accent), var(--gem-yellow), var(--gem-red));
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: -1;
+    filter: blur(24px);
+  }
+
+  .cta-card:hover::before { opacity: 0.15; }
+
+  .cta-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+  }
+
+  .cta-icon {
+    font-size: 52px;
+    margin-bottom: 22px;
+    display: block;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .cta-card h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+
+  .cta-card h2 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cta-card p {
+    font-size: 19px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 550px;
+    margin: 0 auto;
+  }
+
+  .cta-card strong { color: var(--text-primary); }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 0 32px 60px;
+    color: var(--text-muted);
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .footer a:hover { opacity: 0.7; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero { padding: 48px 24px; min-height: 90vh; }
+    .hero h1 { font-size: 40px; }
+    .hero p { font-size: 18px; }
+    .h-scroll-track { padding: 60px 24px; gap: 20px; }
+    .h-card { flex: 0 0 85vw; padding: 36px 28px; }
+    .h-card h2 { font-size: 24px; }
+    .h-card p { font-size: 17px; }
+    .h-card .card-icon { width: 56px; height: 56px; font-size: 28px; }
+    .h-card .card-num { font-size: 60px; }
+    .sub-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sub-card { padding: 18px; }
+    .sub-card h4 { font-size: 15px; }
+    .sub-card p { font-size: 14px !important; }
+    .cta-section { padding: 48px 24px 80px; }
+    .cta-card { padding: 40px 32px; }
+    .cta-card h2 { font-size: 26px; }
+    .cta-card p { font-size: 17px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero { padding: 36px 16px; min-height: 85vh; }
+    .hero .badge { font-size: 12px; padding: 6px 18px; }
+    .hero h1 { font-size: 32px; }
+    .hero p { font-size: 16px; }
+    .scroll-hint { font-size: 12px; bottom: 24px; }
+    .h-scroll-track { padding: 40px 16px; gap: 16px; }
+    .h-card { flex: 0 0 90vw; padding: 28px 22px; border-radius: 14px; }
+    .h-card:hover { transform: translateY(-3px) scale(1); }
+    .h-card .card-icon { width: 48px; height: 48px; font-size: 24px; border-radius: 14px; }
+    .h-card .card-num { font-size: 50px; top: 18px; left: 20px; }
+    .h-card h2 { font-size: 21px; }
+    .h-card .eng { font-size: 12px; }
+    .h-card p { font-size: 16px; line-height: 1.75; }
+    .not-agent { font-size: 12px; padding: 5px 14px; }
+    .sub-cards { grid-template-columns: 1fr; gap: 10px; }
+    .sub-card { padding: 18px; }
+    .sub-card h4 { font-size: 15px; }
+    .sub-card p { font-size: 14px !important; }
+    .sub-card .stat { font-size: 15px; }
+    .scroll-indicators { padding-bottom: 32px; }
+    .cta-section { padding: 32px 16px 60px; }
+    .cta-card { padding: 32px 20px; border-radius: 14px; }
+    .cta-icon { font-size: 40px; }
+    .cta-card h2 { font-size: 22px; }
+    .cta-card p { font-size: 16px; }
+    .footer { font-size: 13px; padding-bottom: 48px; }
+  }
+
+  @media (max-width: 360px) {
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 15px; }
+    .h-card { padding: 22px 18px; }
+    .h-card h2 { font-size: 19px; }
+    .h-card p { font-size: 15px; }
+    .cta-card h2 { font-size: 20px; }
+    .cta-card p { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    הדרכת יוטיוב
+  </div>
+  <h1><span>Google Gems</span><br>העוזרים החכמים שלך ב-Gemini</h1>
+  <p>כל מה שצריך לדעת כדי לבנות עוזרים מותאמים אישית שחוסכים לך זמן, חושבים כמוך, ומבוססים על הידע שלך בלבד.</p>
+  <div class="gem-icon-row">
+    <div class="gem-dot"></div>
+    <div class="gem-dot"></div>
+    <div class="gem-dot"></div>
+    <div class="gem-dot"></div>
+  </div>
+  <div class="scroll-hint">
+    גלול הצידה
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<!-- ── HORIZONTAL CARDS ── -->
+<div class="h-scroll-wrapper">
+  <div class="h-scroll-track" id="track">
+
+    <!-- Card 1 -->
+    <div class="h-card" onmousemove="trackMouse(event,this)" onmouseleave="resetMouse(this)">
+      <div class="card-num">01</div>
+      <div class="card-icon">💎</div>
+      <h2>מהות ה-Gems</h2>
+      <span class="eng">Custom AI Assistants</span>
+      <p>Google Gems הם <strong>עוזרים מותאמים אישית</strong> בתוך פלטפורמת Gemini. הם אינם סוכנים אוטונומיים (Agents) מאחר שהם לא יוזמים רצפי פעולות מורכבים ברקע על דעת עצמם.</p>
+      <p>אלו <span class="highlight">כלים פרגמטיים</span> שממתינים להנחיה שלך, אך מגיעים מראש עם <strong>תפקיד, ידע וגישה מוגדרים היטב.</strong></p>
+      <div class="not-agent">⚡ לא Agent - כלי פרגמטי שממתין להנחיה שלך</div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="h-card" onmousemove="trackMouse(event,this)" onmouseleave="resetMouse(this)">
+      <div class="card-num">02</div>
+      <div class="card-icon">⚙️</div>
+      <h2>מנגנון ההוראות</h2>
+      <span class="eng">Instructions - קוד ההפעלה</span>
+      <p>זהו <strong>"קוד ההפעלה"</strong> של כל Gem. כאן אתה מגדיר את <strong>האישיות</strong> שלו, <strong>הטון</strong> (למשל, תכליתי, מקצועי ונטול בולשיט), ואת <strong>תבניות הפלט</strong> הרצויות.</p>
+      <p>מרגע שההוראות הוזנו, ה-Gem פועל תמיד דרך הפריזמה הזו - מה ש<span class="highlight">חוסך לך את הצורך לכתוב פרומפטים ארוכים של רקע</span> בכל שיחה מחדש.</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="h-card" onmousemove="trackMouse(event,this)" onmouseleave="resetMouse(this)">
+      <div class="card-num">03</div>
+      <div class="card-icon">🧠</div>
+      <h2>טעינת ידע</h2>
+      <span class="eng">Knowledge - המוח השני</span>
+      <p>כדי להימנע מניחושים ולהתבסס רק על <strong>המציאות המקצועית שלך</strong>, ניתן להזין ל-Gems מקורות ידע קבועים בשתי דרכים עיקריות:</p>
+      <div class="sub-cards">
+        <div class="sub-card">
+          <span class="sub-icon">📁</span>
+          <h4>העלאה ישירה</h4>
+          <p>צירוף קבצים (כמו מסמכי PDF) או קישור מסמכים מ-Google Drive ישירות לתוך ה-Gem.</p>
+        </div>
+        <div class="sub-card">
+          <span class="sub-icon">🔗</span>
+          <h4>שילוב עם NotebookLM</h4>
+          <p>מכפיל הכוח האמיתי. חיבור למחברת שמכילה <span class="stat">50–300</span> מקורות מידע שונים (מסמכים, סרטונים, תמלילים). ה-Gem משתמש בה כ"מוח שני" ושואב נתונים מבוססי חומרים מקוריים בלבד.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="scroll-indicators" id="indicators">
+    <div class="dot active" onclick="scrollTo(0)"></div>
+    <div class="dot" onclick="scrollTo(1)"></div>
+    <div class="dot" onclick="scrollTo(2)"></div>
+  </div>
+</div>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-card">
+    <span class="cta-icon">🚀</span>
+    <h2>ההמלצה: <span>הטמע Gems עכשיו</span></h2>
+    <p>התחל מהמשימות <strong>השוחקות והחוזרות ביותר</strong> בעבודה שלך. בנה להן Gem ייעודי עם הוראות ברורות וידע רלוונטי - ותחסוך שעות כל שבוע.</p>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<div class="footer">
+  Goodpoint OS · Google Gems - המדריך המלא
+  <br><br>
+  <a href="https://goodpoint.co.il" target="_blank">goodpoint.co.il</a>
+  <br>
+  <span style="display: inline-block; margin-top: 8px;">© כל הזכויות שמורות לאדי לבנטמן</span>
+</div>
+
+<script>
+function trackMouse(e, card) {
+  const rect = card.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  card.style.setProperty('--mx', x + '%');
+  card.style.setProperty('--my', y + '%');
+}
+
+function resetMouse(card) {
+  card.style.setProperty('--mx', '50%');
+  card.style.setProperty('--my', '50%');
+}
+
+// Scroll indicators
+const track = document.getElementById('track');
+const dots = document.querySelectorAll('.dot');
+
+function scrollTo(index) {
+  const cards = track.querySelectorAll('.h-card');
+  cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+track.addEventListener('scroll', () => {
+  const cards = track.querySelectorAll('.h-card');
+  const trackRect = track.getBoundingClientRect();
+  const center = trackRect.left + trackRect.width / 2;
+  let closest = 0;
+  let minDist = Infinity;
+
+  cards.forEach((card, i) => {
+    const cardRect = card.getBoundingClientRect();
+    const cardCenter = cardRect.left + cardRect.width / 2;
+    const dist = Math.abs(cardCenter - center);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = i;
+    }
+  });
+
+  dots.forEach((d, i) => d.classList.toggle('active', i === closest));
+});
+</script>
+
+</body>
+</html>
