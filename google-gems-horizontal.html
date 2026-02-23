@@ -195,14 +195,26 @@
   .h-card {
     flex: 0 0 min(85vw, 560px);
     scroll-snap-align: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: rgba(6, 80, 80, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: var(--radius);
     padding: 48px 40px;
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
+    opacity: 0.25;
+    filter: brightness(0.4) saturate(0.3);
+    transform: scale(0.97);
+  }
+
+  .h-card:hover {
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+    transform: translateY(-6px) scale(1.01);
+    background: var(--bg-card);
+    border-color: var(--border-active);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 50px rgba(68, 240, 118, 0.06);
   }
 
   .h-card::before {
@@ -211,7 +223,7 @@
     inset: 0;
     background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(68, 240, 118, 0.08) 0%, transparent 60%);
     opacity: 0;
-    transition: opacity 0.4s;
+    transition: opacity 0.6s;
     pointer-events: none;
   }
 
@@ -227,7 +239,7 @@
     border-radius: 50%;
     filter: blur(60px);
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.6s;
     pointer-events: none;
   }
 
@@ -237,12 +249,6 @@
 
   .h-card:hover::after { opacity: 0.1; }
 
-  .h-card:hover {
-    border-color: var(--border-active);
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 50px rgba(68, 240, 118, 0.06);
-  }
-
   .h-card .card-num {
     position: absolute;
     top: 24px;
@@ -251,13 +257,13 @@
     font-size: 80px;
     font-weight: 800;
     line-height: 1;
-    color: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.02);
     pointer-events: none;
-    transition: color 0.4s;
+    transition: color 0.6s;
   }
 
   .h-card:hover .card-num {
-    color: rgba(68, 240, 118, 0.06);
+    color: rgba(68, 240, 118, 0.08);
   }
 
   .h-card .card-icon {
@@ -269,7 +275,8 @@
     font-size: 32px;
     border-radius: 18px;
     margin-bottom: 24px;
-    transition: all 0.4s;
+    transition: all 0.6s;
+    flex-shrink: 0;
     position: relative;
     z-index: 1;
   }
@@ -288,7 +295,7 @@
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 6px;
-    transition: color 0.3s;
+    transition: color 0.6s;
     position: relative;
     z-index: 1;
   }
@@ -542,6 +549,7 @@
     .h-scroll-track { padding: 40px 16px; gap: 16px; }
     .h-card { flex: 0 0 90vw; padding: 28px 22px; border-radius: 14px; }
     .h-card:hover { transform: translateY(-3px) scale(1); }
+    .h-card { opacity: 0.3; filter: brightness(0.45) saturate(0.3); }
     .h-card .card-icon { width: 48px; height: 48px; font-size: 24px; border-radius: 14px; }
     .h-card .card-num { font-size: 50px; top: 18px; left: 20px; }
     .h-card h2 { font-size: 21px; }
