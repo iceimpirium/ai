@@ -153,6 +153,7 @@
   .accordion-item:nth-child(3) { animation-delay: 0.22s; }
   .accordion-item:nth-child(4) { animation-delay: 0.28s; }
   .accordion-item:nth-child(5) { animation-delay: 0.34s; }
+  .accordion-item:nth-child(6) { animation-delay: 0.40s; }
 
   .accordion-item:hover {
     border-color: rgba(255, 255, 255, 0.1);
@@ -556,6 +557,11 @@
     </div>
   </div>
 
+  <!-- Red Team Note -->
+  <div style="margin: 8px 0 12px; padding: 18px 28px; border-radius: var(--radius); background: rgba(68, 240, 118, 0.07); border: 1px solid rgba(68, 240, 118, 0.35); text-align: center;">
+    <span style="font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent);">⚠️ לפני שממשיכים - בצעו "צוות אדום" (Red Team) על האפיון עד כה</span>
+  </div>
+
   <!-- Prompt 5: Final Assembly -->
   <div class="accordion-item">
     <div class="accordion-header" onclick="toggle(this)">
@@ -570,7 +576,31 @@
       <div class="accordion-content">
         <div class="goal">🎯 המטרה: לרכז את כל האפיון למסמך אחד מוכן לשימוש</div>
         <div class="prompt-box">
-          <p>"המשימה האחרונה שלך תהיה לארוז את הכל: כתוב לי מסמך אפיון המלא של הסוכן, מחולק ל-4 השלבים (Needs, Personality, Methods, Data) - כך שאוכל פשוט להעתיק אותו לחלון חדש."</p>
+          <p>"המשימה האחרונה שלך תהיה לארוז את הכל: כתוב לי מסמך אפיון המלא של הסוכן, מחולק ל-4 השלבים (Needs, Personality, Methods, Data) - כך שאוכל פשוט להעתיק אותו לחלון חדש. לאחר שסיימת, אמור לי: 'מצוין! כשתהיה מוכן לשלב הסופי, העתק והדבק את הפרומפט של שלב 6: יצירת System Prompt.'"</p>
+          <button class="copy-btn" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            העתק פרומפט
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt 6: System Prompt -->
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggle(this)">
+      <div class="step-icon">⚙️</div>
+      <div class="header-text">
+        <h3>שלב 6: יצירת פרומפט מערכת (System Prompt)</h3>
+        <div class="subtitle">XML · הוראות מערכת · מוכן לפריסה</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="goal">🎯 המטרה: להפוך את מסמך האפיון לפרומפט מערכת מלא, מובנה בתגיות XML, מוכן להדבקה ישירה בממשק ה-AI</div>
+        <div class="prompt-box">
+          <p>"כתוב פרומפט מערכת system prompt מבוסס תגיות XML על בסיס האפיון המצורף {הדבק אפיון}"</p>
           <button class="copy-btn" onclick="copyPrompt(this)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             העתק פרומפט
