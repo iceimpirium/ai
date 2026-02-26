@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryCheat — 12 קלפים לסטוריטלינג ארגוני</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #014040;
+    --bg-card: #065050;
+    --bg-card-hover: #0a5e5e;
+    --accent: #44F076;
+    --accent-dim: rgba(68, 240, 118, 0.12);
+    --accent-glow: rgba(68, 240, 118, 0.25);
+    --yellow: #F0E544;
+    --yellow-dim: rgba(240, 229, 68, 0.12);
+    --text-primary: #ffffff;
+    --text-secondary: #c5e0e0;
+    --text-muted: #7aabab;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-active: rgba(68, 240, 118, 0.4);
+    --radius: 16px;
+    --cat-control: #4dc9f6;
+    --cat-influence: #f67280;
+    --cat-clarity: #f6c042;
+    --cat-strategy: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Google Sans', 'Heebo', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .ambient {
+    position: fixed;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-1 { background: var(--accent); top: -300px; left: -200px; opacity: 0.05; }
+  .ambient-2 { background: var(--cat-strategy); bottom: -300px; right: -200px; opacity: 0.04; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 28px 100px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp 0.7s ease-out;
+  }
+
+  .header .badge {
+    display: inline-block;
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    border: 1px solid rgba(240, 229, 68, 0.2);
+    padding: 7px 22px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 18px;
+  }
+
+  .header h1 .yellow {
+    color: var(--yellow);
+    font-size: clamp(56px, 12vw, 110px);
+    display: block;
+    letter-spacing: -2px;
+  }
+
+  .header h1 .green {
+    background: linear-gradient(135deg, var(--accent), #a0ffc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: clamp(22px, 3.5vw, 32px);
+    font-weight: 700;
+    display: block;
+    margin-top: 8px;
+  }
+
+  .header p {
+    font-size: 19px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.75;
+  }
+
+  /* ── Category Filter ── */
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s ease-out 0.15s both;
+  }
+
+  .filter-btn {
+    font-family: 'Google Sans', 'Heebo', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .filter-btn:hover {
+    border-color: rgba(255,255,255,0.15);
+    color: var(--text-secondary);
+  }
+
+  .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .filter-btn .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  /* ── Card ── */
+  .card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+    animation: fadeUp 0.5s ease-out both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.11s; }
+  .card:nth-child(4) { animation-delay: 0.14s; }
+  .card:nth-child(5) { animation-delay: 0.17s; }
+  .card:nth-child(6) { animation-delay: 0.20s; }
+  .card:nth-child(7) { animation-delay: 0.23s; }
+  .card:nth-child(8) { animation-delay: 0.26s; }
+  .card:nth-child(9) { animation-delay: 0.29s; }
+  .card:nth-child(10) { animation-delay: 0.32s; }
+  .card:nth-child(11) { animation-delay: 0.35s; }
+  .card:nth-child(12) { animation-delay: 0.38s; }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(68, 240, 118, 0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    background: var(--bg-card-hover);
+    border-color: var(--cat-color, var(--border-active));
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(68, 240, 118, 0.04);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card.hidden {
+    display: none;
+  }
+
+  /* Card inner number */
+  .card-num {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.04);
+    pointer-events: none;
+    transition: color 0.5s;
+  }
+
+  .card:hover .card-num {
+    color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Category tag */
+  .cat-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    letter-spacing: 0.5px;
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.5s;
+    opacity: 1;
+  }
+
+  .card:hover .cat-tag { opacity: 1; }
+
+  .cat-tag.control { background: rgba(77, 201, 246, 0.15); color: var(--cat-control); }
+  .cat-tag.influence { background: rgba(246, 114, 128, 0.15); color: var(--cat-influence); }
+  .cat-tag.clarity { background: rgba(246, 192, 66, 0.15); color: var(--cat-clarity); }
+  .cat-tag.strategy { background: rgba(167, 139, 250, 0.15); color: var(--cat-strategy); }
+
+  .card-emoji {
+    font-size: 32px;
+    margin-bottom: 14px;
+    display: block;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.4s;
+  }
+
+  .card:hover .card-emoji {
+    transform: scale(1.15) rotate(-5deg);
+  }
+
+  .card h3 {
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+    transition: color 0.4s;
+  }
+
+  .card:hover h3 { color: var(--accent); }
+
+  .card .eng-name {
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card .enemy {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cat-influence);
+    background: rgba(246, 114, 128, 0.1);
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card .when {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card .when strong {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Steps (revealed on hover) */
+  .card .steps {
+    position: relative;
+    z-index: 1;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+    opacity: 0;
+  }
+
+  .card:hover .steps {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .step-item:last-child { margin-bottom: 0; }
+
+  .step-label {
+    flex-shrink: 0;
+    font-family: 'Google Sans', 'Rubik', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 10px;
+    border-radius: 6px;
+    height: fit-content;
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+
+  .step-text { flex: 1; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .footer a:hover { opacity: 0.7; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .container { padding: 48px 20px 80px; }
+    .header h1 .yellow { font-size: 72px; }
+    .header h1 .green { font-size: 24px; }
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; gap: 14px; }
+    .container { padding: 36px 14px 64px; }
+    .header { margin-bottom: 40px; }
+    .header .badge { font-size: 12px; }
+    .header h1 .yellow { font-size: 52px; letter-spacing: -1px; }
+    .header h1 .green { font-size: 20px; }
+    .header p { font-size: 16px; }
+    .filters { gap: 8px; margin-bottom: 28px; }
+    .filter-btn { font-size: 13px; padding: 7px 16px; }
+    .card { padding: 26px 22px; border-radius: 14px; }
+    .card h3 { font-size: 18px; }
+    .card .when { font-size: 14px; }
+    .card-num { font-size: 50px; }
+    .card-emoji { font-size: 28px; }
+    .step-item { font-size: 13px; }
+    .footer { font-size: 13px; }
+  }
+
+  @media (max-width: 400px) {
+    .header h1 .yellow { font-size: 42px; }
+    .header h1 .green { font-size: 18px; }
+    .header p { font-size: 15px; }
+    .card { padding: 22px 18px; }
+    .card h3 { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">ערכת סטוריטלינג ארגוני</div>
+    <h1><span class="yellow">StoryCheat</span><br><span class="green">12 קלפים לסטוריטלינג ארגוני</span></h1>
+    <p>שליפה מהירה של המבנה הנרטיבי הנכון לכל סיטואציה ארגונית — מישיבת סטטוס ועד שיחת מסדרון עם בכיר.</p>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all')">הכל (12)</button>
+    <button class="filter-btn" onclick="filterCards('control')"><span class="dot" style="background:var(--cat-control)"></span> שליטה ודיווח</button>
+    <button class="filter-btn" onclick="filterCards('influence')"><span class="dot" style="background:var(--cat-influence)"></span> השפעה ומכירה</button>
+    <button class="filter-btn" onclick="filterCards('clarity')"><span class="dot" style="background:var(--cat-clarity)"></span> בהירות והסברה</button>
+    <button class="filter-btn" onclick="filterCards('strategy')"><span class="dot" style="background:var(--cat-strategy)"></span> אסטרטגיה</button>
+  </div>
+
+  <div class="grid" id="grid">
+
+    <!-- 1. The Sniper -->
+    <div class="card" data-cat="control" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-control)">
+      <div class="card-num">01</div>
+      <span class="cat-tag control">שליטה ודיווח</span>
+      <span class="card-emoji">🎯</span>
+      <h3>"הצלף"</h3>
+      <span class="eng-name">The Sniper</span>
+      <div class="when"><strong>מתי לשלוף:</strong> בישיבות סטטוס, QBR או כששואלים "איפה הדברים עומדים?"</div>
+      <div class="enemy">⚔️ האויב: שעמום</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">העוגן</span><span class="step-text">"כמו שאתם יודעים, המטרה המרכזית בפרויקט X היא..."</span></div>
+        <div class="step-item"><span class="step-label">המוקש</span><span class="step-text">"אבל, נתקלנו ב-[מכשול ספציפי] שפגע ב-[מדד]."</span></div>
+        <div class="step-item"><span class="step-label">התיקון</span><span class="step-text">"לכן, ביצענו מיד [פעולה חדה וברורה]."</span></div>
+        <div class="step-item"><span class="step-label">הניצחון</span><span class="step-text">"בזכות זה, אנחנו עכשיו ב-[סטטוס חיובי]."</span></div>
+      </div>
+    </div>
+
+    <!-- 2. The Pivot -->
+    <div class="card" data-cat="control" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-control)">
+      <div class="card-num">02</div>
+      <span class="cat-tag control">שליטה ודיווח</span>
+      <span class="card-emoji">🔄</span>
+      <h3>"הפיווט"</h3>
+      <span class="eng-name">The Pivot</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשהתגלה באג קריטי, פספוס דדליין, או משבר אמון.</div>
+      <div class="enemy">⚔️ האויב: פאניקה והאשמות</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">העובדות</span><span class="step-text">"אני רוצה להציף שפספסנו את [היעד]. זה עלינו."</span></div>
+        <div class="step-item"><span class="step-label">השורש</span><span class="step-text">"הסיבה האמיתית היא לא [סימפטום], אלא [שורש הבעיה המערכתי]."</span></div>
+        <div class="step-item"><span class="step-label">התיקון</span><span class="step-text">"כדי לוודא שזה לא קורה שוב בחיים, הטמענו את [מנגנון הבקרה]."</span></div>
+        <div class="step-item"><span class="step-label">שורה תחתונה</span><span class="step-text">"חזרנו למסלול מלא. יש שאלות?"</span></div>
+      </div>
+    </div>
+
+    <!-- 3. The Waze -->
+    <div class="card" data-cat="control" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-control)">
+      <div class="card-num">03</div>
+      <span class="cat-tag control">שליטה ודיווח</span>
+      <span class="card-emoji">🧭</span>
+      <h3>"הווייז"</h3>
+      <span class="eng-name">The Waze</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשהדיון מתפזר למיליון כיוונים וצריך לאפס את החדר.</div>
+      <div class="enemy">⚔️ האויב: הסחות דעת</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">היעד</span><span class="step-text">"חברים, בואו נזכור שהיעד היחיד הוא להשיק ב-1.1."</span></div>
+        <div class="step-item"><span class="step-label">המכשול</span><span class="step-text">"כרגע, הדבר היחיד שעוצר אותנו הוא השרת שנפל."</span></div>
+        <div class="step-item"><span class="step-label">הפתרון</span><span class="step-text">"לכן, כל מה שאנחנו צריכים לפתור בחדר הזה זה את עניין השרת."</span></div>
+      </div>
+    </div>
+
+    <!-- 4. The Bridge -->
+    <div class="card" data-cat="influence" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-influence)">
+      <div class="card-num">04</div>
+      <span class="cat-tag influence">השפעה ומכירה</span>
+      <span class="card-emoji">🌉</span>
+      <h3>"הגשר"</h3>
+      <span class="eng-name">The Bridge</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשצריך להטמיע כלי חדש, לשנות נהלי עבודה, או למכור אסטרטגיה.</div>
+      <div class="enemy">⚔️ האויב: ציניות והתנגדות לשינוי</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הגהנום</span><span class="step-text">"כרגע, אנחנו שורפים זמן וכסף על [התהליך הישן]. זה מתסכל כי..."</span></div>
+        <div class="step-item"><span class="step-label">גן עדן</span><span class="step-text">"תחשבו איזה יופי יהיה אם נצליח [התוצאה הרצויה] בלי החיכוך הזה."</span></div>
+        <div class="step-item"><span class="step-label">הסירה</span><span class="step-text">"הדרך היחידה לחצות את הגשר, היא לאמץ את [הכלי/שיטה החדשה]."</span></div>
+      </div>
+    </div>
+
+    <!-- 5. The Investment -->
+    <div class="card" data-cat="influence" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-influence)">
+      <div class="card-num">05</div>
+      <span class="cat-tag influence">השפעה ומכירה</span>
+      <span class="card-emoji">💰</span>
+      <h3>"ההשקעה"</h3>
+      <span class="eng-name">The Investment</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשצריך עוד אנשים לצוות, תקציב לתוכנה, או זמן נוסף (משאבים).</div>
+      <div class="enemy">⚔️ האויב: אין תקציב</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הפער</span><span class="step-text">"אנחנו צריכים להגיע ליעד X אבל כרגע יש לנו משאבים רק ל-Y."</span></div>
+        <div class="step-item"><span class="step-label">המחיר</span><span class="step-text">"כדי לסגור את הפער הזה, אני מבקש [סכום/כוח אדם]."</span></div>
+        <div class="step-item"><span class="step-label">ההחזר</span><span class="step-text">"זה עולה [עלות], אבל המחיר של לא לעשות כלום הוא [מחיר הטעות הגבוה יותר]."</span></div>
+      </div>
+    </div>
+
+    <!-- 6. The Agitator -->
+    <div class="card" data-cat="influence" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-influence)">
+      <div class="card-num">06</div>
+      <span class="cat-tag influence">השפעה ומכירה</span>
+      <span class="card-emoji">🔥</span>
+      <h3>"המתסיס"</h3>
+      <span class="eng-name">The Agitator</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשהם אדישים לבעיה או דוחים החלטות ("זה לא דחוף").</div>
+      <div class="enemy">⚔️ האויב: אדישות</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הבעיה</span><span class="step-text">"יש לנו כרגע [תיאור הבעיה] במערכת."</span></div>
+        <div class="step-item"><span class="step-label">הכאב</span><span class="step-text">"זה לא סתם באג, זה גורם לצוות לבזבז Y שעות, ושורף לנו את המוטיבציה." (ללחוץ איפה שכואב).</span></div>
+        <div class="step-item"><span class="step-label">הפתרון</span><span class="step-text">"הדרך היחידה לעצור את הדימום הזה היא [הפתרון שלך]."</span></div>
+      </div>
+    </div>
+
+    <!-- 7. The Leveler -->
+    <div class="card" data-cat="clarity" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-clarity)">
+      <div class="card-num">07</div>
+      <span class="cat-tag clarity">בהירות והסברה</span>
+      <span class="card-emoji">📐</span>
+      <h3>"מיישר הקו"</h3>
+      <span class="eng-name">The Leveler</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשצריך להתחיל פרזנטציה, להציג רקע, או כשכולם מבולבלים לגבי "למה התכנסנו".</div>
+      <div class="enemy">⚔️ האויב: בלבול וחוסר הקשר</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הסיטואציה</span><span class="step-text">"עד הבוקר, המצב היה ש..." (עובדה מוסכמת שכולם מהנהנים עליה).</span></div>
+        <div class="step-item"><span class="step-label">הסיבוך</span><span class="step-text">"אבל אז קרה ש..." (השינוי שיצר את הבעיה/הדרמה).</span></div>
+        <div class="step-item"><span class="step-label">השאלה</span><span class="step-text">"ועכשיו אנחנו צריכים להכריע..." (הדילמה שעומדת בפנינו).</span></div>
+        <div class="step-item"><span class="step-label">התשובה</span><span class="step-text">"ההמלצה שלי היא..." (הפתרון שאציג עכשיו).</span></div>
+      </div>
+    </div>
+
+    <!-- 8. The Translator -->
+    <div class="card" data-cat="clarity" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-clarity)">
+      <div class="card-num">08</div>
+      <span class="cat-tag clarity">בהירות והסברה</span>
+      <span class="card-emoji">🗣️</span>
+      <h3>"המתרגם"</h3>
+      <span class="eng-name">The Translator</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשאתה רואה "מבט מזוגג" כי אתה מדבר טכנית מדי, או כשצריך להסביר ללקוח למה זה מסובך.</div>
+      <div class="enemy">⚔️ האויב: ז׳רגון מקצועי</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">המושג</span><span class="step-text">"הטכנולוגיה שאנחנו בונים היא למעשה..." (הגדרת הנושא).</span></div>
+        <div class="step-item"><span class="step-label">הגשר</span><span class="step-text">"זה עובד בדיוק כמו [משהו מוכר מהיום-יום — חשמל/אינסטלציה/רמזור]."</span></div>
+        <div class="step-item"><span class="step-label">ההבדל</span><span class="step-text">"רק שבמקרה שלנו, זה הרבה יותר מהיר/חכם כי..."</span></div>
+        <div class="step-item"><span class="step-label">החזרה</span><span class="step-text">"ולכן זה יאפשר למערכת שלנו לרוץ בלי תקלות."</span></div>
+      </div>
+    </div>
+
+    <!-- 9. The Holy Trinity -->
+    <div class="card" data-cat="clarity" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-clarity)">
+      <div class="card-num">09</div>
+      <span class="cat-tag clarity">בהירות והסברה</span>
+      <span class="card-emoji">🔺</span>
+      <h3>"השילוש הקדוש"</h3>
+      <span class="eng-name">The Holy Trinity</span>
+      <div class="when"><strong>מתי לשלוף:</strong> שיחות מסדרון, פידבק, ועדכונים מהירים.</div>
+      <div class="enemy">⚔️ האויב: חפירה</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">מה</span><span class="step-text">"הנה מה שקרה / מה שראיתי..." (עובדות אובייקטיביות).</span></div>
+        <div class="step-item"><span class="step-label">אז מה</span><span class="step-text">"המשמעות של זה היא..." (למה זה מעניין אותנו/האימפקט).</span></div>
+        <div class="step-item"><span class="step-label">ומה עכשיו</span><span class="step-text">"לכן הצעד הבא הוא..." (פעולה קונקרטית).</span></div>
+      </div>
+    </div>
+
+    <!-- 10. The Fork -->
+    <div class="card" data-cat="strategy" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-strategy)">
+      <div class="card-num">10</div>
+      <span class="cat-tag strategy">אסטרטגיה</span>
+      <span class="card-emoji">🍴</span>
+      <h3>"המזלג"</h3>
+      <span class="eng-name">The Fork</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כשהמנהל שואל "אז מה האופציות שלנו?" ואתה רוצה לכוון אותו לאופציה הרצויה.</div>
+      <div class="enemy">⚔️ האויב: חוסר החלטיות</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הצומת</span><span class="step-text">"אנחנו עומדים בפני שתי דרכים מרכזיות."</span></div>
+        <div class="step-item"><span class="step-label">דרך א׳</span><span class="step-text">"אפשר ללכת על [אופציה א׳]. היתרון הוא יציבות, אבל המחיר הוא איטיות."</span></div>
+        <div class="step-item"><span class="step-label">דרך ב׳</span><span class="step-text">"אפשר ללכת על [אופציה ב׳]. יש כאן סיכון מסוים, אבל הפוטנציאל הוא כפול."</span></div>
+        <div class="step-item"><span class="step-label">ההמלצה</span><span class="step-text">"לאור המצב בשוק, ההמלצה החד משמעית שלי היא [ב׳]."</span></div>
+      </div>
+    </div>
+
+    <!-- 11. The Time Traveler -->
+    <div class="card" data-cat="strategy" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-strategy)">
+      <div class="card-num">11</div>
+      <span class="cat-tag strategy">אסטרטגיה</span>
+      <span class="card-emoji">⏳</span>
+      <h3>"חוזה העתידות"</h3>
+      <span class="eng-name">The Time Traveler</span>
+      <div class="when"><strong>מתי לשלוף:</strong> לפני שמתחילים פרויקט גדול, כשיש התלהבות יתר ("אופוריה").</div>
+      <div class="enemy">⚔️ האויב: עיוורון אופטימי</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">המסע</span><span class="step-text">"דמיינו שאנחנו שנה מהיום, והפרויקט נכשל כישלון חרוץ."</span></div>
+        <div class="step-item"><span class="step-label">החקירה</span><span class="step-text">"מה הסיבה שבגללה נכשלנו?" (נותנים לכולם לזרוק רעיונות).</span></div>
+        <div class="step-item"><span class="step-label">המניעה</span><span class="step-text">"מעולה. עכשיו בואו נתקן את הדבר הזה היום, כדי שזה לא יקרה."</span></div>
+      </div>
+    </div>
+
+    <!-- 12. The Hook -->
+    <div class="card" data-cat="strategy" onmousemove="tm(event,this)" onmouseleave="rm(this)" style="--cat-color: var(--cat-strategy)">
+      <div class="card-num">12</div>
+      <span class="cat-tag strategy">אסטרטגיה</span>
+      <span class="card-emoji">🪝</span>
+      <h3>"הקרס"</h3>
+      <span class="eng-name">The Hook</span>
+      <div class="when"><strong>מתי לשלוף:</strong> כששואלים "מה אתם עושים בצוות שלכם?" או בתחילת שיחת מסדרון עם בכיר.</div>
+      <div class="enemy">⚔️ האויב: להיות בלתי-זכיר</div>
+      <div class="steps">
+        <div class="step-item"><span class="step-label">הבעיה</span><span class="step-text">"מכירה את זה ש-[בעיה מעצבנת שכולם מכירים]?"</span></div>
+        <div class="step-item"><span class="step-label">הפתרון</span><span class="step-text">"אז הצוות שלי בנה כלי שפותר את זה אוטומטית."</span></div>
+        <div class="step-item"><span class="step-label">ההוכחה</span><span class="step-text">"למעשה, חסכנו למחלקת כספים יומיים עבודה רק בשבוע שעבר."</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Goodpoint OS · StoryCheat — 12 קלפים לסטוריטלינג ארגוני
+    <br><br>
+    <a href="https://goodpoint.co.il" target="_blank">goodpoint.co.il</a>
+    <br>
+    <span style="display: inline-block; margin-top: 8px;">© כל הזכויות שמורות לאדי לבנטמן</span>
+  </div>
+
+</div>
+
+<script>
+function tm(e, card) {
+  const r = card.getBoundingClientRect();
+  card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+  card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+}
+
+function rm(card) {
+  card.style.setProperty('--mx', '50%');
+  card.style.setProperty('--my', '50%');
+}
+
+function filterCards(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  document.querySelectorAll('.card').forEach(c => {
+    if (cat === 'all' || c.dataset.cat === cat) {
+      c.classList.remove('hidden');
+    } else {
+      c.classList.add('hidden');
+    }
+  });
+}
+</script>
+
+</body>
+</html>
